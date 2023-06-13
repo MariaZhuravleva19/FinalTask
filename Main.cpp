@@ -1,13 +1,9 @@
 #include <iostream>
 #include <vector>
-#include <complex>
-#include <cmath>
-
 
 using namespace std;
 
 typedef long long ll;
-typedef complex<double> Point;
 
 ll gcd(ll a, ll b)
 {
@@ -16,28 +12,61 @@ ll gcd(ll a, ll b)
     return gcd(b, a % b);
 }
 
-int main() 
+class Point
+{
+public:
+    ll x, y;
+
+    Point(ll _x, ll _y) : x(_x), y(_y) {}
+};
+
+ll calculateArea(const vector<Point>& points)
+{
+    int n = points.size();
+    ll area = 0;
+    for (int i = 0; i < n; i++)
+    {
+        ll x1 = points[i].x;
+        ll x2 = points[(i + 1) % n].x;
+        ll y1 = points[i].y;
+        ll y2 = points[(i + 1) % n].y;
+        area += (x1 + x2) * (y2 - y1);
+    }
+    return area;
+}
+
+ll countBoundaryPoints(const vector<Point>& points)
+{
+    int n = points.size();
+    ll b = 0;
+    for (int i = 0; i < n; i++)
+    {
+        ll x1 = points[i].x;
+        ll x2 = points[(i + 1) % n].x;
+        ll y1 = points[i].y;
+        ll y2 = points[(i + 1) % n].y;
+        ll dx = abs(x2 - x1);
+        ll dy = abs(y2 - y1);
+        b += gcd(dx, dy);
+    }
+    return b;
+}
+
+int main()
 {
     int n;
     cin >> n;
-    vector<Point> v(n);
-    for (int i = 0; i < n; i++) 
+    vector<Point> points;
+    for (int i = 0; i < n; i++)
     {
-        double x, y;
+        ll x, y;
         cin >> x >> y;
-        v[i] = { x, y };
+        points.emplace_back(x, y);
     }
-    v.push_back(v[0]);
-    ll area = 0;
-    ll b = 0;
-    for (int i = 0; i < n; i++) 
-    {
-        Point x = v[i], y = v[i + 1];
-        area += imag(conj(x) * y);
-        Point z = y - x;
-        ll g = gcd(static_cast<ll>(real(z)), static_cast<ll>(imag(z)));
-        b += abs(g);
-    }
+    points.emplace_back(points[0].x, points[0].y);
+
+    ll area = calculateArea(points);
+    ll b = countBoundaryPoints(points);
 
     ll a = abs(area) - b + 2;
     cout << a / 2 << ' ' << b;
